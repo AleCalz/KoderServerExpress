@@ -7,30 +7,31 @@ const server = express();
 server.use(express.json())
 const koderFile = 'dbKoderServer.json'
 
-//revisar si el archivo existe o no -- podria ser anonima ??
-// (function init (){
 function init(){
     if (!fs.existsSync(koderFile)) {
         fs.writeFileSync(koderFile, JSON.stringify({ kodersList:[] }))
     }
 }
+init()
+
+function listaKoders() {
+    const arrKoders = JSON.parse(fs.readFileSync(koderFile,'utf8')).kodersList
+    return arrKoders
+}
 
 server.get('/koders', (request,response) => {
-    init()
-    //leemos
-    arrKoders = JSON.parse(fs.readFileSync(koderFile,'utf8')).kodersList
 
-    //le pasamos un objeto
     response.json({
         message:'all Koders',
-        koder: arrKoders
+        kodersList: listaKoders()
     })
 })
 
 //agregar un koder
 server.post('/koders', (request,response) => {
-    
-    console.log(request.body);
+    const arrayKoders = listaKoders()
+
+    const newkoder = request.body
     const newName = request.body.name
     const newGender = request.body.gender
     const newIsActive = request.body.isActive
@@ -67,16 +68,15 @@ server.post('/koders', (request,response) => {
         })
         return
     }
-
-    todos.push(newTodo)
-
+    arrayKoders.push(newkoder)
+    updateKoders(arrayKoders)
     response.json({
         message: 'New koder added!',
-        todo : todos
+        kodersList : newkoder
     })
 })
 
-//Eliminar un koder
+//Eliminar un koder --- nada
 server.delete('/todos/:idx', (request,response) => {
     
     const idxDel = request.params.idx;
@@ -100,39 +100,27 @@ server.delete('/todos/:idx', (request,response) => {
 
     todos.splice(indexAsInteger,1)
     response.json({
-        message:'TODO deleted successfuly',
+        message:'koder deleted successfuly',
         todo:todos
     })
 })
 
-//Eliminar un koder
-server.delete('/todos/:name', (request,response) => {
-    const nameDel = request.params.name;
-    const indexAsInteger = parseInt(nameDel)
-
-    if (isNaN(indexAsInteger)) {
-        response.status(400)
-        response.json({
-            message:"Invalid index, must be a number"
-        })
-        return
-    }
+//Eliminar todos los koder
+server.delete('/koders', (request,response) => {
     
-    if (indexAsInteger < 0 || indexAsInteger >= todos.length) {
-        response.status(400)
-        response.json({
-            message:"Invalid index, out of bound"
-        })
-        return
-    }
-
-    todos.splice(indexAsInteger,1)
+    const newObjectKoder = { kodersList: koders }
+    //reescribimos el archivo con los datos nuevos 
+    fs.writeFileSync(koderFile,JSON.stringify(newObjectKoder))
     response.json({
-        message:'TODO deleted successfuly',
-        todo:todos
+        message:'Koders deleted successfuly',
+        koder:[]
     })
 })
 
+function updateKoders(koders) {
+    const newObjectKoder = { kodersList: koders}
+    fs.writeFileSync(koderFile, JSON.stringify(newObjectKoder))
+}
 
 server.listen(8080,() => {
     console.log(`Server running on port 8080`);

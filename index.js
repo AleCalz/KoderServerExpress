@@ -108,12 +108,10 @@ server.delete('/todos/:idx', (request,response) => {
 //Eliminar todos los koder
 server.delete('/koders', (request,response) => {
     
-    const newObjectKoder = { kodersList: koders }
-    //reescribimos el archivo con los datos nuevos 
-    fs.writeFileSync(koderFile,JSON.stringify(newObjectKoder))
+    updateKoders([])
     response.json({
         message:'Koders deleted successfuly',
-        koder:[]
+        kodersList:[]
     })
 })
 

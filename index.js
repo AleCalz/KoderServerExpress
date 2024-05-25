@@ -77,31 +77,17 @@ server.post('/koders', (request,response) => {
 })
 
 //Eliminar un koder --- nada
-server.delete('/todos/:idx', (request,response) => {
-    
-    const idxDel = request.params.idx;
-    const indexAsInteger = parseInt(idxDel)
+server.delete('/koders/:name', (request,response) => {
+    const arrayKoders = listaKoders()
+    const nameDel = request.params.name;
 
-    if (isNaN(indexAsInteger)) {
-        response.status(400)
-        response.json({
-            message:"Invalid index, must be a number"
-        })
-        return
-    }
-    
-    if (indexAsInteger < 0 || indexAsInteger >= todos.length) {
-        response.status(400)
-        response.json({
-            message:"Invalid index, out of bound"
-        })
-        return
-    }
+    arrayKodersDel = arrayKoders.filter( objKoderIterable => objKoderIterable.name !== nameDel)
+    // console.log( 'array sin elemento eliminado: ', arrayKodersDel );
 
-    todos.splice(indexAsInteger,1)
+    updateKoders(arrayKodersDel)
     response.json({
         message:'koder deleted successfuly',
-        todo:todos
+        kodersList:arrayKodersDel
     })
 })
 
@@ -114,6 +100,7 @@ server.delete('/koders', (request,response) => {
         kodersList:[]
     })
 })
+
 
 function updateKoders(koders) {
     const newObjectKoder = { kodersList: koders}
